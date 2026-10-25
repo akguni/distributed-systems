@@ -1,4 +1,4 @@
-package flynn.threads; // erstellt das package, wie namespace in c#
+package flynn.threads.aufgabe1; // erstellt das package, wie namespace in c#
 
 public class SimpleThreads implements Runnable { // wie interface in c#
 

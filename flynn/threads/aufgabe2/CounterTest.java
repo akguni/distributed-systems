@@ -1,4 +1,4 @@
-package flynn.threads;
+package flynn.threads.aufgabe2;
 
 public class CounterTest implements Runnable {
 

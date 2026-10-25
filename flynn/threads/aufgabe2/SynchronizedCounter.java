@@ -1,4 +1,4 @@
-package flynn.threads;
+package flynn.threads.aufgabe2;
 
 public class SynchronizedCounter extends Counter { // erbt von Counter (wie ": Counter" in c#)
 
