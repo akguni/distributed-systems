@@ -1,49 +1,45 @@
 package ismail.sockets;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public class SimpleClient {
-    private static final String HOST = "localhost";
-    private static final String PATH = "/index.html";
+public class SimpleClient extends AbstractClient {
     private static final String HTTP_VERSION = "HTTP/1.1";
-    private static final String HEADER_HOST = "Host: ";
-    private static final String HEADER_CONNECTION_CLOSE = "Connection: close";
+    private static final String GET_METHOD = "GET";
+    private static final String HOST_HEADER = "Host: ";
+    private static final String CONNECTION_CLOSE_HEADER = "Connection: close";
     private static final String CRLF = "\r\n";
-    private static final int HTTP_PORT = 80;
 
-    public static void main(String[] args) throws Exception {
-        if (args.length < 2 || args.length > 3) {
-            System.out.println("Usage: java SimpleClient.java <host> <path> [port]");
-            return;
-        }
+    public SimpleClient(String host, String path, int port) {
+        super(host, path, port);
+    }
 
-        String host = args[0];
-        String path = args[1];
-        int port = args.length == 3 ? Integer.parseInt(args[2]) : 80;
-
-        try (final Socket socket = new Socket(host, port)) {
+    @Override
+    protected ClientConnection connect() throws IOException {
+        final Socket socket = new Socket(host, port);
+        try {
             final OutputStream out = socket.getOutputStream();
-
             final String request =
-                    "GET " + PATH + " " + HTTP_VERSION + CRLF +
-                            HEADER_HOST + HOST + CRLF +
-                            HEADER_CONNECTION_CLOSE + CRLF +
+                    GET_METHOD + " " + path + " " + HTTP_VERSION + CRLF +
+                            HOST_HEADER + host + CRLF +
+                            CONNECTION_CLOSE_HEADER + CRLF +
                             CRLF;
 
             out.write(request.getBytes(StandardCharsets.US_ASCII));
             out.flush();
+            return new ClientConnection(socket.getInputStream(), socket);
+        } catch (IOException exception) {
+            socket.close();
+            throw exception;
+        }
+    }
 
-            final BufferedReader in = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-
-            String line;
-            while ((line = in.readLine()) != null) {
-                System.out.println(line);
-            }
+    public static void main(String[] args) throws IOException {
+        final Arguments arguments = parseArguments(args, "SimpleClient");
+        if (arguments != null) {
+            new SimpleClient(arguments.host(), arguments.path(), arguments.port()).run();
         }
     }
 }
