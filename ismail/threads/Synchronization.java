@@ -1,49 +1,57 @@
 package ismail.threads;
 
 public class Synchronization {
-    private final static int NUMBER_OF_THREADS = 4;
-    private final static Thread[] threads = new Thread[NUMBER_OF_THREADS];
 
+    private static final int NUMBER_OF_THREADS = 20;
+    private static final int INCREMENTS_PER_THREAD = 50;
 
-    static void main() {
+    public static void main(String[] args) throws InterruptedException {
+        test("OrdinaryCounter", new OrdinaryCounter());
+        test("SynchronizedCounter", new SynchronizedCounter());
+    }
 
-        final Counter counter =  new Counter();
-        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-            threads[i] = new Thread(new CounterRunner(i, counter));
+    static void test(String name, CounterInterface counter)
+            throws InterruptedException {
+        Thread[] threads = new Thread[NUMBER_OF_THREADS];
+        int expected = NUMBER_OF_THREADS * INCREMENTS_PER_THREAD;
+
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(
+                    new CounterRunner(counter, INCREMENTS_PER_THREAD),
+                    "counter-worker-" + i);
         }
 
         for (Thread thread : threads) {
             thread.start();
         }
-    }
+        for (Thread thread : threads) {
+            thread.join();
+        }
 
-}
-
-class CounterRunner implements Runnable {
-
-    private final int id;
-    private final Counter counter;
-
-    public CounterRunner(int id, Counter counter) {
-        this.id = id;
-        this.counter = counter;
-    }
-
-    @Override
-    public void run() {
-        for (int i = 0; i <= 9; i++) {
-            try {
-                System.out.printf("THREAD %d, RUN %d: c was %d\n", id, i, counter.value());
-                counter.increment();
-                System.out.printf("THREAD %d, RUN %d: incremented c by 1\n", id, i);
-                System.out.printf("THREAD %d, RUN %d: c is now %d\n", id, i, counter.value());
-
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.printf("Someone interrrupted Thread %d!\n", id);
-            }
+        int actual = counter.value();
+        if (actual != expected) {
+            System.out.printf("%s: INTERFERENCE DETECTED; expected %d, got %d%n",
+                    name, expected, actual);
+        } else {
+            System.out.printf("%s: no interference; value is %d%n", name, actual);
         }
     }
 }
 
+final class CounterRunner implements Runnable {
+
+    private final CounterInterface counter;
+    private final int repetitions;
+
+    CounterRunner(CounterInterface counter, int repetitions) {
+        this.counter = counter;
+        this.repetitions = repetitions;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < repetitions; i++) {
+            counter.increment();
+        }
+    }
+}

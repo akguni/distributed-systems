@@ -1,6 +1,6 @@
 package ismail.threads;
 
-class Counter {
+class OrdinaryCounter implements CounterInterface {
 
     private int c = 0;
 
