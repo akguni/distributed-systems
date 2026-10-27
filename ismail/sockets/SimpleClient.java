@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class SimpleClient {
-    private static final String HOST = "fh-wedel.com";
+    private static final String HOST = "localhost";
     private static final String PATH = "/index.html";
     private static final String HTTP_VERSION = "HTTP/1.1";
     private static final String HEADER_HOST = "Host: ";
@@ -16,7 +16,16 @@ public class SimpleClient {
     private static final int HTTP_PORT = 80;
 
     public static void main(String[] args) throws Exception {
-        try (final Socket socket = new Socket(HOST, HTTP_PORT)) {
+        if (args.length < 2 || args.length > 3) {
+            System.out.println("Usage: java SimpleClient.java <host> <path> [port]");
+            return;
+        }
+
+        String host = args[0];
+        String path = args[1];
+        int port = args.length == 3 ? Integer.parseInt(args[2]) : 80;
+
+        try (final Socket socket = new Socket(host, port)) {
             final OutputStream out = socket.getOutputStream();
 
             final String request =
