@@ -1,0 +1,9 @@
+http://<IPv4>:8080/index.html
+z.b. http://172.21.128.1:8080/index.html
+
+
+windows:
+ipconfig
+
+linux:
+hostname -I
