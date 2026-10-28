@@ -3,7 +3,7 @@ package ismail.threads;
 public class Synchronization {
 
     private static final int NUMBER_OF_THREADS = 20;
-    private static final int INCREMENTS_PER_THREAD = 50;
+    private static final int INCREMENTS_PER_THREAD = 5_000;
 
     public static void main(String[] args) throws InterruptedException {
         test("OrdinaryCounter", new OrdinaryCounter());
