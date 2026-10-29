@@ -1,6 +1,5 @@
 package andreas.ueb01;
 
-// Vorgegeben aus Exercise 01, Aufgabe 2 – nicht verändern.
 class Counter {
     private int c = 0;
 

@@ -5,6 +5,7 @@ public class CounterInterference {
 
     public static void main(String[] args) throws InterruptedException {
         Counter counter = new SynchronizedCounter();
+        // Counter counter = new Counter();
 
         Thread a = new Thread(() -> {
             for (int i = 0; i < RUNS; i++) {

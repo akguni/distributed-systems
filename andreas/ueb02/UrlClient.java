@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 
-// Exercise 02, Aufgabe 1b: derselbe Client, aber mit java.net.URL statt Socket
 public class UrlClient {
 
     public static void main(String[] args) throws Exception {
