@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package logging;
+
+import "google/protobuf/timestamp.proto";
+
+message LogMessage {
+  google.protobuf.Timestamp timestamp = 1;
+
+  // Optional information about who created the entry and where.
+
+  message Indicator {
+    string created_by = 1;
+    string location = 2;
+  }
+
+  optional Indicator indicator = 2;
+
+  Severity severity = 4;
+  string text = 5; // One-line message body.
+}
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  DEBUG = 1;
+  INFO = 2;
+  WARN = 3;
+  ERROR = 4;
+  FATAL = 5;
+}
