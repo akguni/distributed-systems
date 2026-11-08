@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_package = "flynn.HA3.aufgabe2.code.generated";
+option java_multiple_files = true;
+
+message RpcRequest {
+  enum Operation {
+    GET_RECORD = 0;
+    ADD_RECORD = 1;
+    GET_SIZE = 2;
+  }
+
+  Operation operation = 1;
+  int32 index = 2;
+  string record = 3;
+}
+
+message RpcResponse {
+  bool ok = 1;
+  string record = 2;
+  int32 size = 3;
+}

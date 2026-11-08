@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option java_package = "flynn.HA4.code.generated";
+option java_multiple_files = true;
+
+service Database {
+  rpc GetRecord (GetRecordRequest) returns (GetRecordResponse);
+  rpc AddRecord (AddRecordRequest) returns (AddRecordResponse);
+  rpc GetSize (GetSizeRequest) returns (GetSizeResponse);
+}
+
+message GetRecordRequest {
+  int32 index = 1;
+}
+
+message GetRecordResponse {
+  bool found = 1;
+  string record = 2;
+}
+
+message AddRecordRequest {
+  int32 index = 1;
+  string record = 2;
+}
+
+message AddRecordResponse {
+}
+
+message GetSizeRequest {
+}
+
+message GetSizeResponse {
+  int32 size = 1;
+}

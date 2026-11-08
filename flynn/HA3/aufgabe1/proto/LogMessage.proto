@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_package = "flynn.HA3.aufgabe1.code.generated";
+option java_multiple_files = true;
+
+message LogMessage {
+  enum Severity { //Schwere
+    DEBUG = 0;
+    INFO = 1;
+    WARN = 2;
+    ERROR = 3;
+    FATAL = 4;
+  }
+
+  int64 timestamp = 1;
+  optional string origin = 2;
+  Severity severity = 3;
+  string text = 4;
+}
+
+
