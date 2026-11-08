@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package database;
+
+option java_multiple_files = true;
+option java_package = "ismail.exercise04.database.protocol";
+
+service DatabaseService {
+  rpc GetRecord(GetRecordRequest) returns (GetRecordResponse);
+  rpc AddRecord(AddRecordRequest) returns (AddRecordResponse);
+  rpc GetSize(GetSizeRequest) returns (GetSizeResponse);
+}
+
+message GetRecordRequest {
+  int32 index = 2;
+}
+
+message GetRecordResponse {
+  bool found = 1;
+  string record = 3;
+}
+
+message AddRecordRequest {
+  int32 index = 1;
+  string record = 2;
+}
+
+message AddRecordResponse {
+  bool added = 1;
+  string error = 2;
+}
+
+message GetSizeRequest {
+}
+
+message GetSizeResponse {
+  int32 size = 1;
+}
