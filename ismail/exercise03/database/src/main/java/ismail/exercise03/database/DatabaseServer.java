@@ -10,9 +10,14 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class DatabaseServer {
     private static final int DEFAULT_PORT = 8081;
+    private static final int WORKER_COUNT = Math.max(
+            2, Runtime.getRuntime().availableProcessors());
 
     private DatabaseServer() {
     }
@@ -33,36 +38,55 @@ public class DatabaseServer {
 
     static void run(ServerSocket server, InMemoryDatabase database)
             throws IOException {
+        final ExecutorService workers = Executors.newFixedThreadPool(WORKER_COUNT);
         System.out.println("DatabaseServer listening on port "
                 + server.getLocalPort());
-        while (!server.isClosed()) {
-            try (Socket client = server.accept()) {
-                handle(client.getInputStream(), client.getOutputStream(), database);
-            } catch (SocketException exception) {
-                if (server.isClosed()) {
-                    break;
+        try {
+            while (!server.isClosed()) {
+                try {
+                    final Socket client = server.accept();
+                    workers.execute(() -> handle(client, database));
+                } catch (SocketException exception) {
+                    if (server.isClosed()) {
+                        break;
+                    }
+                    throw exception;
                 }
-                throw exception;
-            } catch (InvalidProtocolBufferException exception) {
-                System.err.println("Ignoring malformed database request: "
-                        + exception.getMessage());
+            }
+        } finally {
+            workers.shutdown();
+            try {
+                if (!workers.awaitTermination(5, TimeUnit.SECONDS)) {
+                    workers.shutdownNow();
+                }
+            } catch (InterruptedException exception) {
+                workers.shutdownNow();
+                Thread.currentThread().interrupt();
             }
         }
     }
 
-    private static void handle(
-            InputStream input,
-            OutputStream output,
-            InMemoryDatabase database) throws IOException {
-        final DatabaseRequest request = DatabaseRequest.parseDelimitedFrom(input);
-        if (request == null) {
-            return;
-        }
+    private static void handle(Socket client, InMemoryDatabase database) {
+        try (client;
+             InputStream input = client.getInputStream();
+             OutputStream output = client.getOutputStream()) {
+            final DatabaseRequest request =
+                    DatabaseRequest.parseDelimitedFrom(input);
+            if (request == null) {
+                return;
+            }
 
-        final DatabaseResponse response = dispatch(request, database);
-        response.writeDelimitedTo(output);
-        output.flush();
-        System.out.println("Processed " + request.getOperation());
+            final DatabaseResponse response = dispatch(request, database);
+            response.writeDelimitedTo(output);
+            output.flush();
+            System.out.println("Processed " + request.getOperation());
+        } catch (InvalidProtocolBufferException exception) {
+            System.err.println("Ignoring malformed database request: "
+                    + exception.getMessage());
+        } catch (IOException exception) {
+            System.err.println("Database client connection failed: "
+                    + exception.getMessage());
+        }
     }
 
     private static DatabaseResponse dispatch(

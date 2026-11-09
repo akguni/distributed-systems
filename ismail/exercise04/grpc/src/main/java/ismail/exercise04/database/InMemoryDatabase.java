@@ -1,18 +1,14 @@
 package ismail.exercise04.database;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 final class InMemoryDatabase {
-    private final Map<Integer, String> records = new HashMap<>();
+    private final Map<Integer, String> records = new ConcurrentHashMap<>();
 
     boolean add(int index, String record) {
-        if (records.containsKey(index)) {
-            return false;
-        }
-        records.put(index, record);
-        return true;
+        return records.putIfAbsent(index, record) == null;
     }
 
     Optional<String> get(int index) {
