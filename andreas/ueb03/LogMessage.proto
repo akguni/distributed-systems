@@ -1,0 +1,32 @@
+// Blatt 3, Teil A: Format der Log-Nachrichten
+syntax = "proto3";
+
+package andreas.ueb03;
+
+option java_package = "andreas.ueb03.proto";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+// wer den Eintrag erzeugt hat und auf welchem Rechner
+message Origin {
+  string host = 1;
+  string program = 2;
+}
+
+// erster Wert muss in proto3 0 sein, daher UNSPECIFIED (sonst wäre jede Nachricht ohne Level automatisch DEBUG)
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  DEBUG = 1;
+  INFO = 2;
+  WARN = 3;
+  ERROR = 4;
+  FATAL = 5;
+}
+
+message LogMessage {
+  google.protobuf.Timestamp timestamp = 1;
+  optional Origin origin = 2;   // laut Blatt optional, darf also fehlen -> mit hasOrigin() prüfen
+  Severity severity = 3;
+  string text = 4;              // einzeilig
+}

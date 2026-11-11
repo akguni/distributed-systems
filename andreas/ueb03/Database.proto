@@ -1,0 +1,51 @@
+// Blatt 3, Teil B: Datenbank-Server, RPC von Hand über Protobuf
+syntax = "proto3";
+
+package andreas.ueb03;
+
+option java_package = "andreas.ueb03.proto";
+option java_multiple_files = true;
+
+// Parameter und Rückgaben pro Operation
+
+message GetRecordRequest  { int32 index = 1; }
+message GetRecordResponse {
+  bool found = 1;     // sonst kann man "kein Eintrag" nicht von "" unterscheiden
+  string record = 2;
+}
+
+message AddRecordRequest  { int32 index = 1; string record = 2; }
+message AddRecordResponse { bool replaced = 1; }  // true, wenn der Index schon belegt war
+
+message GetSizeRequest    { }
+message GetSizeResponse   { int32 size = 1; }
+
+// Request: welche Operation + das passende Argument
+
+message RPC_Request {
+  enum Operation {
+    OPERATION_UNSPECIFIED = 0;
+    GET_RECORD = 1;
+    ADD_RECORD = 2;
+    GET_SIZE = 3;
+  }
+  Operation operation = 1;
+
+  // die optionalen Parameter vom Blatt: pro Aufruf ist nur einer gesetzt, deshalb oneof
+  oneof args {
+    GetRecordRequest get_record_arg = 2;
+    AddRecordRequest add_record_arg = 3;
+    GetSizeRequest   get_size_arg   = 4;
+  }
+}
+
+// Response: Ergebnis der Operation oder Fehlertext
+
+message RPC_Response {
+  oneof result {
+    GetRecordResponse get_record_result = 1;
+    AddRecordResponse add_record_result = 2;
+    GetSizeResponse   get_size_result   = 3;
+    string            error             = 4;
+  }
+}

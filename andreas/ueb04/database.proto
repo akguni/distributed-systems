@@ -1,0 +1,20 @@
+// Blatt 4: gleicher Datenbank-Server wie Blatt 3, aber mit gRPC
+// statt Operation-Enum + oneof gibt es hier einen service mit drei rpc-Methoden
+syntax = "proto3";
+
+package ueb04;
+
+service Database {
+  rpc GetRecord (GetRecordRequest) returns (GetRecordResponse);
+  rpc AddRecord (AddRecordRequest) returns (AddRecordResponse);
+  rpc GetSize   (GetSizeRequest)   returns (GetSizeResponse);
+}
+
+message GetRecordRequest  { int32 index = 1; }
+message GetRecordResponse { string record = 1; }   // gibt es den Index nicht, kommt Status NOT_FOUND zurück
+
+message AddRecordRequest  { int32 index = 1; string record = 2; }
+message AddRecordResponse { bool replaced = 1; }
+
+message GetSizeRequest    { }
+message GetSizeResponse   { int32 size = 1; }
