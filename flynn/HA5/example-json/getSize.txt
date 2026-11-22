@@ -1,0 +1,4 @@
+getSize: gibt die anzahl der gespeicherten einträge zurück
+
+--> {"jsonrpc":"2.0","method":"getSize","params":[],"id":9}
+<-- {"jsonrpc":"2.0","result":6,"id":9}

@@ -1,0 +1,4 @@
+addRecord: trägt einen eintrag ein (index, text)
+
+--> {"jsonrpc":"2.0","method":"addRecord","params":[4103,"Wedel"],"id":3}
+<-- {"jsonrpc":"2.0","result":true,"id":3}

@@ -1,0 +1,50 @@
+json-rpc
+
+anfrage
+
+    key       typ                     pflicht   beschreibung
+    --------------------------------------------------------
+    jsonrpc   string, immer "2.0"     ja        version
+    method    string                  ja        name der methode, z.b. "getRecord"
+    params    array oder objekt       nein      parameter, z.b. [4103]
+    id        string, zahl oder null  nein      nummer vom client, kommt in der antwort zurück
+
+    fehlt id, ist es eine notification, der server antwortet dann nicht.
+
+
+antwort
+
+    key       typ                     pflicht      beschreibung
+    --------------------------------------------------------
+    jsonrpc   string, immer "2.0"     ja           version
+    result    beliebiger json-wert    bei erfolg   das ergebnis
+    error     objekt                  bei fehler   der fehler
+    id        string, zahl oder null  ja           gleiche id wie in der anfrage
+
+    result und error gibt es nie beide zusammen.
+
+
+error-objekt
+
+    key       typ                     pflicht   beschreibung
+    --------------------------------------------------------
+    code      zahl (ganzzahl)         ja        vordifineirte fehlercode nummern von jsonRPC 2.0
+    message   string                  ja        kurzer text
+    data      beliebiger json-wert    nein      zusatzinfos
+
+
+fehlercodes
+
+    code               message           bedeutung
+    -32700             Parse error       kein gültiges json angekommen
+    -32600             Invalid Request   json ist gültig, aber keine gültige anfrage
+    -32601             Method not found  die methode gibt es nicht
+    -32602             Invalid params    die parameter passen nicht
+    -32603             Internal error    interner fehler beim server
+    -32000 bis -32099  Server error      frei für eigene fehler des servers
+
+    bereich -32768 bis -32000 ist für das protokoll reserviert.
+    alles außerhalb davon darf die anwendung selbst vergeben.
+
+    ich nutze:
+    -32600, -32601, -32602, -32700

@@ -1,0 +1,9 @@
+fehler: statt result steht ein error mit code und message, die id bleibt gleich
+
+methode gibt es nicht:
+--> {"jsonrpc":"2.0","method":"deleteRecord","params":[4103],"id":10}
+<-- {"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":10}
+
+parameter passen nicht (index ist keine zahl):
+--> {"jsonrpc":"2.0","method":"getRecord","params":["abc"],"id":11}
+<-- {"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params"},"id":11}

@@ -1,0 +1,25 @@
+
+voraussetzung: java (jdk) ist installiert,
+prüfen mit: javac -version
+
+
+1. terminal: kompilieren (nur einmal, oder nach jeder änderung am code)
+
+cd <pfad zum repo>
+javac -encoding UTF-8 -d flynn/HA5/out flynn/HA5/code/*.java
+
+
+2. terminal: server starten (bleibt offen und läuft weiter)
+
+cd <pfad zum repo>
+java -cp flynn/HA5/out flynn.HA5.code.RpcServer
+
+
+3. terminal: client starten (läuft einmal durch und beendet sich)
+
+cd <pfad zum repo>
+java -cp flynn/HA5/out flynn.HA5.code.RpcClient
+
+
+reihenfolge: erst kompilieren, dann server, dann client.
+<pfad zum repo> ist der ordner, in dem "flynn" liegt.

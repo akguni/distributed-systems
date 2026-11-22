@@ -1,0 +1,9 @@
+getRecord: liest einen eintrag zu einem index
+
+eintrag gefunden:
+--> {"jsonrpc":"2.0","method":"getRecord","params":[4103],"id":7}
+<-- {"jsonrpc":"2.0","result":"Wedel","id":7}
+
+eintrag nicht vorhanden (result ist null):
+--> {"jsonrpc":"2.0","method":"getRecord","params":[4107],"id":8}
+<-- {"jsonrpc":"2.0","result":null,"id":8}
