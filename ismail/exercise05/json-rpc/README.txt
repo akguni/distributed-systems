@@ -35,6 +35,25 @@ processes.
 
 The database is stored in memory and is lost when the server stops.
 
+RUN THE CLIENT
+
+With the server running in another terminal, run:
+
+java -cp "$CP" ismail.exercise05.jsonrpc.database.DatabaseClient localhost 8081
+
+The client adds the six exercise records, reads 4103 and 4107, and requests
+the database size. The expected output is:
+
+addRecord(4101) succeeded
+addRecord(4102) succeeded
+addRecord(4103) succeeded
+addRecord(4104) succeeded
+addRecord(4105) succeeded
+addRecord(4106) succeeded
+getRecord(4103) -> Wedel
+getRecord(4107) reports that no record exists
+getSize() -> 6
+
 TESTS
 
 The module contains unit tests for the in-memory database and an integration

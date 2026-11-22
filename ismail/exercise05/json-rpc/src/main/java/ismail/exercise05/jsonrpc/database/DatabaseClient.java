@@ -1,16 +1,16 @@
 package ismail.exercise05.jsonrpc.database;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import ismail.exercise05.jsonrpc.database.protocol.AddRecordRequest;
-import ismail.exercise05.jsonrpc.database.protocol.AddRecordResponse;
-import ismail.exercise05.jsonrpc.database.protocol.DatabaseServiceGrpc;
-import ismail.exercise05.jsonrpc.database.protocol.GetRecordRequest;
-import ismail.exercise05.jsonrpc.database.protocol.GetRecordResponse;
-import ismail.exercise05.jsonrpc.database.protocol.GetSizeRequest;
-import ismail.exercise05.jsonrpc.database.protocol.GetSizeResponse;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
-import java.util.concurrent.TimeUnit;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class DatabaseClient {
     private static final int DEFAULT_PORT = 8081;
@@ -18,7 +18,7 @@ public class DatabaseClient {
     private DatabaseClient() {
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws IOException {
         if (args.length > 2) {
             System.out.println("Usage: java DatabaseClient.java [host] [port]");
             return;
@@ -28,68 +28,128 @@ public class DatabaseClient {
         final int port = args.length > 1
                 ? Integer.parseInt(args[1])
                 : DEFAULT_PORT;
-        final ManagedChannel channel = channel(host, port);
-        try {
-            runExerciseScenario(DatabaseServiceGrpc.newBlockingStub(channel));
-        } finally {
-            channel.shutdown();
-            channel.awaitTermination(5, TimeUnit.SECONDS);
-        }
+        runExerciseScenario(host, port);
     }
 
-    static ManagedChannel channel(String host, int port) {
-        return ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
-                .build();
-    }
-
-    static void runExerciseScenario(DatabaseServiceGrpc.DatabaseServiceBlockingStub stub) {
+    static void runExerciseScenario(String host, int port) throws IOException {
         final int[] indexes = {4101, 4102, 4103, 4104, 4105, 4106};
         final String[] values = {
                 "Appen", "Ahrensburg", "Wedel", "Aumühle", "Seevetal", "Quickborn"
         };
 
         for (int i = 0; i < indexes.length; i++) {
-            printAddResponse(indexes[i], addRecord(stub, indexes[i], values[i]));
+            final JsonObject response =
+                    addRecord(host, port, indexes[i], values[i], i + 1);
+            printAddResponse(indexes[i], response);
         }
 
-        printGetResponse(4103, getRecord(stub, 4103));
-        printGetResponse(4107, getRecord(stub, 4107));
-        System.out.println("getSize() -> " + getSize(stub).getSize());
+        printGetResponse(host, port, 4103, indexes.length + 1);
+        printGetResponse(host, port, 4107, indexes.length + 2);
+        final JsonObject sizeResponse =
+                getSize(host, port, indexes.length + 3);
+        if (sizeResponse.containsKey("error")) {
+            printError("getSize()", sizeResponse);
+        } else {
+            System.out.println("getSize() -> "
+                    + sizeResponse.getInt("result"));
+        }
     }
 
-    static AddRecordResponse addRecord(
-            DatabaseServiceGrpc.DatabaseServiceBlockingStub stub,
-            int index,
-            String record) {
-        return stub.addRecord(AddRecordRequest.newBuilder()
-                .setIndex(index)
-                .setRecord(record)
-                .build());
+    static JsonObject addRecord(
+            String host,
+            int port,
+            int key,
+            String record,
+            int id) throws IOException {
+        final JsonObject request = Json.createObjectBuilder()
+                .add("jsonrpc", "2.0")
+                .add("method", "addRecord")
+                .add("params", Json.createObjectBuilder()
+                        .add("key", key)
+                        .add("record", record))
+                .add("id", id)
+                .build();
+        return send(host, port, request);
     }
 
-    static GetRecordResponse getRecord(
-            DatabaseServiceGrpc.DatabaseServiceBlockingStub stub,
-            int index) {
-        return stub.getRecord(GetRecordRequest.newBuilder()
-                .setIndex(index)
-                .build());
+    static JsonObject getRecord(
+            String host,
+            int port,
+            int key,
+            int id) throws IOException {
+        final JsonObject request = Json.createObjectBuilder()
+                .add("jsonrpc", "2.0")
+                .add("method", "getRecord")
+                .add("params", Json.createObjectBuilder()
+                        .add("key", key))
+                .add("id", id)
+                .build();
+        return send(host, port, request);
     }
 
-    static GetSizeResponse getSize(
-            DatabaseServiceGrpc.DatabaseServiceBlockingStub stub) {
-        return stub.getSize(GetSizeRequest.getDefaultInstance());
+    static JsonObject getSize(
+            String host,
+            int port,
+            int id) throws IOException {
+        final JsonObject request = Json.createObjectBuilder()
+                .add("jsonrpc", "2.0")
+                .add("method", "getSize")
+                .add("params", Json.createArrayBuilder())
+                .add("id", id)
+                .build();
+        return send(host, port, request);
     }
 
-    private static void printAddResponse(int index, AddRecordResponse response) {
-        System.out.println(response.getAdded()
-                ? "addRecord(" + index + ") succeeded"
-                : "addRecord(" + index + ") failed: " + response.getError());
+    private static JsonObject send(
+            String host,
+            int port,
+            JsonObject request) throws IOException {
+        try (Socket socket = new Socket(host, port);
+             PrintWriter output = new PrintWriter(
+                     socket.getOutputStream(), true, StandardCharsets.UTF_8);
+             BufferedReader input = new BufferedReader(new InputStreamReader(
+                     socket.getInputStream(), StandardCharsets.UTF_8))) {
+            output.println(request);
+            final String line = input.readLine();
+            if (line == null) {
+                throw new IOException("Database server closed without a response");
+            }
+            try (JsonReader reader = Json.createReader(new StringReader(line))) {
+                return reader.readObject();
+            }
+        }
     }
 
-    private static void printGetResponse(int index, GetRecordResponse response) {
-        System.out.println(response.getFound()
-                ? "getRecord(" + index + ") -> " + response.getRecord()
-                : "getRecord(" + index + ") reports that no record exists");
+    private static void printAddResponse(int key, JsonObject response) {
+        if (response.containsKey("error")) {
+            printError("addRecord(" + key + ")", response);
+        } else {
+            System.out.println(response.getBoolean("result")
+                    ? "addRecord(" + key + ") succeeded"
+                    : "addRecord(" + key + ") failed");
+        }
+    }
+
+    private static void printGetResponse(
+            String host,
+            int port,
+            int key,
+            int id) throws IOException {
+        final JsonObject response = getRecord(host, port, key, id);
+        if (response.containsKey("error")) {
+            printError("getRecord(" + key + ")", response);
+        } else if (response.isNull("result")) {
+            System.out.println("getRecord(" + key
+                    + ") reports that no record exists");
+        } else {
+            System.out.println("getRecord(" + key + ") -> "
+                    + response.getString("result"));
+        }
+    }
+
+    private static void printError(String operation, JsonObject response) {
+        final JsonObject error = response.getJsonObject("error");
+        System.out.println(operation + " failed: "
+                + error.getString("message"));
     }
 }
