@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ismail</groupId>
-    <artifactId>exercise04</artifactId>
+    <artifactId>exercise05</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>grpc</module>
+        <module>json-rpc</module>
     </modules>
 
     <properties>
@@ -18,5 +18,6 @@
         <protobuf.version>4.36.2</protobuf.version>
         <grpc.version>1.85.1</grpc.version>
         <junit.version>5.12.2</junit.version>
+        <junit.platform.version>1.12.2</junit.platform.version>
     </properties>
 </project>

@@ -1,4 +1,4 @@
-package ismail.exercise04.database;
+package ismail.exercise05.jsonrpc.database;
 
 import org.junit.jupiter.api.Test;
 

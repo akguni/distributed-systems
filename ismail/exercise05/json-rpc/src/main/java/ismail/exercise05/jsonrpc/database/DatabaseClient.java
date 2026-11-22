@@ -1,14 +1,14 @@
-package ismail.exercise04.database;
+package ismail.exercise05.jsonrpc.database;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import ismail.exercise04.database.protocol.AddRecordRequest;
-import ismail.exercise04.database.protocol.AddRecordResponse;
-import ismail.exercise04.database.protocol.DatabaseServiceGrpc;
-import ismail.exercise04.database.protocol.GetRecordRequest;
-import ismail.exercise04.database.protocol.GetRecordResponse;
-import ismail.exercise04.database.protocol.GetSizeRequest;
-import ismail.exercise04.database.protocol.GetSizeResponse;
+import ismail.exercise05.jsonrpc.database.protocol.AddRecordRequest;
+import ismail.exercise05.jsonrpc.database.protocol.AddRecordResponse;
+import ismail.exercise05.jsonrpc.database.protocol.DatabaseServiceGrpc;
+import ismail.exercise05.jsonrpc.database.protocol.GetRecordRequest;
+import ismail.exercise05.jsonrpc.database.protocol.GetRecordResponse;
+import ismail.exercise05.jsonrpc.database.protocol.GetSizeRequest;
+import ismail.exercise05.jsonrpc.database.protocol.GetSizeResponse;
 
 import java.util.concurrent.TimeUnit;
 
