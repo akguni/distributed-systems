@@ -35,6 +35,29 @@ public class DataBaseImpl implements DataBase {
         return records.size();
     }
 
+    @Override
+    public synchronized int getIndex(String record) throws RemoteException {
+        if (record == null) {
+            return -1;
+        }
+        for (Map.Entry<Integer, String> entry : records.entrySet()) {
+            if (entry.getValue().equals(record)) {
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public synchronized DBResult getRecordObj(int index)
+            throws RemoteException {
+        final String record = records.get(index);
+        if (record == null) {
+            return null;
+        }
+        return new DBResult(index, record);
+    }
+
     public static void main(String[] args) throws Exception {
         final String stubFile = args.length == 1
                 ? args[0]
