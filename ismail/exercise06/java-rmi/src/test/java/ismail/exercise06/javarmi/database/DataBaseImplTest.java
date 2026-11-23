@@ -2,14 +2,30 @@ package ismail.exercise06.javarmi.database;
 
 import org.junit.jupiter.api.Test;
 
-import java.rmi.RemoteException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class DataBaseImplTest {
     @Test
-    void storesReadsAndCountsRecords() throws RemoteException {
+    void exerciseScenarioStoresSixRecordsAndReadsRequestedKeys() throws Exception {
+        final DataBaseImpl database = new DataBaseImpl();
+        final int[] indexes = {4101, 4102, 4103, 4104, 4105, 4106};
+        final String[] values = {
+                "Appen", "Ahrensburg", "Wedel",
+                "Aumühle", "Seevetal", "Quickborn"
+        };
+
+        for (int i = 0; i < indexes.length; i++) {
+            database.addRecord(indexes[i], values[i]);
+        }
+
+        assertEquals("Wedel", database.getRecord(4103));
+        assertNull(database.getRecord(4107));
+        assertEquals(6, database.getSize());
+    }
+
+    @Test
+    void storesReadsAndCountsRecords() throws Exception {
         final DataBaseImpl database = new DataBaseImpl();
 
         database.addRecord(4103, "Wedel");
@@ -20,7 +36,7 @@ class DataBaseImplTest {
     }
 
     @Test
-    void allowsARecordToReplaceAnExistingKey() throws RemoteException {
+    void allowsARecordToReplaceAnExistingKey() throws Exception {
         final DataBaseImpl database = new DataBaseImpl();
 
         database.addRecord(4103, "Wedel");
